@@ -57,6 +57,10 @@ undercloud_disk: 50
 # by default
 undercloud_vcpu: 6
 
+# base domain to use
+base_domain: "{{ lookup('env', 'CLUSTER_DOMAIN') | default('rhhi.cat', true) }}"
+
+
 # The default deployment has flavors for compute, controllers, ceph
 # nodes, and undercloud nodes.  All flavors defined in the `flavors`
 # key will be created with an `oooq_` prefix to avoid conflicts with
@@ -133,9 +137,32 @@ overcloud_nodes:
 #   *  The first bridge network defined will be used for pxe booting
 #
 external_network_cidr: 192.168.23.0/24
+baremetal_network_cidr: 192.168.111.0/24
 networks:
   - name: overcloud
     bridge: brovc
+
+  - name: baremetal
+    bridge: baremetal
+    forward_mode: nat
+    address: "{{ baremetal_network_cidr|nthhost(1) }}"
+    netmask: "{{ baremetal_network_cidr|ipaddr('netmask') }}"
+    dhcp_range:
+      - "{{ baremetal_network_cidr|nthhost(20) }}"
+      - "{{ baremetal_network_cidr|nthhost(60) }}"
+    nat_port_range:
+      - 1024
+      - 65535
+    domain: "{{ base_domain }}"
+    dns:
+      - host:
+          ip: "{{ baremetal_network_cidr | nthhost(5) }}"
+          hostnames:
+            - hostname: "{{ cluster_name }}-api"
+      - host:
+          ip: "{{ baremetal_network_cidr | nthhost(2) }}"
+          hostnames:
+            - hostname: "{{ cluster_name }}-dns"
 
   - name: external
     bridge: brext

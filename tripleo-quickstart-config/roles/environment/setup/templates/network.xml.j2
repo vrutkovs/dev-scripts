@@ -29,5 +29,19 @@
     </dhcp>
 {% endif %}
   </ip>
+{% if item.domain is defined %}
+  <domain name='{{ item.domain }}' localOnly='yes'/>
+{% endif %}
+{% if item.dns is defined %}
+  <dns>
+  {% for host in item.dns.host %}
+    <host ip='{{ host.ip }}'>
+    {% for hostname in host.hostnames %}
+      <hostname>hostname.hostname</hostname>
+    {% endfor %}
+    </host>
+  {% endfor %}
+  </dns>
+{% endif %}
 {% endif %}
 </network>
