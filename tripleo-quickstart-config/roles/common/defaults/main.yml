@@ -155,12 +155,11 @@ networks:
       - 65535
     domain: "{{ base_domain }}"
     dns:
-      - host:
-          ip: "{{ baremetal_network_cidr | nthhost(5) }}"
+      host:
+        - ip: "{{ baremetal_network_cidr | nthhost(5) }}"
           hostnames:
             - hostname: "{{ cluster_name }}-api"
-      - host:
-          ip: "{{ baremetal_network_cidr | nthhost(2) }}"
+        - ip: "{{ baremetal_network_cidr | nthhost(2) }}"
           hostnames:
             - hostname: "{{ cluster_name }}-dns"
 
