@@ -42,21 +42,5 @@
 {% if item.domain is defined %}
   <domain name='{{ item.domain }}' localOnly='yes'/>
 {% endif %}
-{% if item.dns is defined %}
-  <dns>
-  {% for host in item.dns.hosts %}
-    <host ip='{{ host.ip }}'>
-    {% for name in host.hostnames %}
-      <hostname>{{ name }}</hostname>
-    {% endfor %}
-    </host>
-  {% endfor %}
-  {% if item.dns.srvs is defined %}
-    {% for srv in item.dns.srvs %}
-    <srv service='{{ srv.name }}' protocol='{{ srv.protocol }}' domain='{{ srv.domain }}' port='{{ srv.port }}' target='{{ srv.target }}' />
-    {% endfor %}
-  {% endif %}
-  </dns>
-{% endif %}
 {% endif %}
 </network>

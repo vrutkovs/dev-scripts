@@ -91,10 +91,24 @@ while ! domain_net_ip ${CLUSTER_NAME}-bootstrap baremetal; do
   sleep 10
 done
 
+
+# Add debug entries
+echo "log-queries=extra" | sudo tee /etc/NetworkManager/dnsmasq.d/openshift.conf
 # NOTE: This is equivalent to the external API DNS record pointing the API to the API VIP
 IP=$(domain_net_ip ${CLUSTER_NAME}-bootstrap baremetal)
-API_IP=$(dig +noall +answer "${CLUSTER_NAME}-api.${BASE_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
-echo "address=/${CLUSTER_NAME}-api.${BASE_DOMAIN}/${API_IP}" | sudo tee /etc/NetworkManager/dnsmasq.d/openshift.conf
+echo "addn-hosts=/etc/hosts.openshift" | sudo tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
+# Add api alias to bootstrap to host
+echo "${IP} ${CLUSTER_NAME}-bootstrap.${BASE_DOMAIN}" | sudo tee /etc/hosts.openshift
+echo "${IP} ${CLUSTER_NAME}-api.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
+for i in 0 1 2; do
+  MASTER_IP=$(dig +noall +answer "${CLUSTER_NAME}-etcd-${i}.${BASE_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
+  # Add api alias to masters to host dnsmasq and libvirt's dnsmasq
+  echo "${MASTER_IP} ${CLUSTER_NAME}-api.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
+  # Add entries for etcd discovery
+  echo "${MASTER_IP} ${CLUSTER_NAME}-master-${i}.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
+  echo "srv-host=etcd-server-ssl,${CLUSTER_NAME}-master-${i}.${BASE_DOMAIN},2380" | sudo tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
+done
+# Reload dnsmasq on host
 sudo systemctl reload NetworkManager
 
 # Wait for ssh to start
@@ -112,7 +126,7 @@ if [ ! -e images/redhat-coreos-maipo-47.284-openstack_dualdhcp.qcow2 ] ; then
     mkdir -p /tmp/mnt
     sudo kpartx -a /dev/$LOOPBACK
     sudo mount /dev/mapper/${LOOPBACK}p1 /tmp/mnt
-    sudo sed -i -e 's/ip=eth0:dhcp/ip=eth0:dhcp ip=eth1:dhcp/g' /tmp/mnt/grub2/grub.cfg 
+    sudo sed -i -e 's/ip=eth0:dhcp/ip=eth0:dhcp ip=eth1:dhcp/g' /tmp/mnt/grub2/grub.cfg
     sudo umount /tmp/mnt
     sudo kpartx -d /dev/${LOOPBACK}
     sudo losetup -d /dev/${LOOPBACK}
