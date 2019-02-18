@@ -160,8 +160,39 @@ networks:
       - 1024
       - 65535
     domain: "{{ base_domain }}"
-
-
+    dns:
+      srvs:
+        - name: "etcd-server-ssl"
+          protocol: tcp
+          domain: "{{ cluster_name }}.{{ base_domain }}"
+          port: 2380
+          target: "{{ cluster_name }}-etcd-0.{{ base_domain }}"
+        - name: "etcd-server-ssl"
+          protocol: tcp
+          domain: "{{ cluster_name }}.{{ base_domain }}"
+          port: 2380
+          target: "{{ cluster_name }}-etcd-1.{{ base_domain }}"
+        - name: "etcd-server-ssl"
+          protocol: tcp
+          domain: "{{ cluster_name }}.{{ base_domain }}"
+          port: 2380
+          target: "{{ cluster_name }}-etcd-2.{{ base_domain }}"
+      hosts:
+        - ip: "{{ baremetal_network_cidr | nthhost(5) }}"
+          hostnames:
+            - "{{ cluster_name }}-bootstrap"
+        - ip: "{{ baremetal_network_cidr | nthhost(2) }}"
+          hostnames:
+            - "{{ cluster_name }}-dns"
+        - ip: "{{ baremetal_network_cidr | nthhost(20) }}"
+          hostnames:
+            - "{{ cluster_name }}-etcd-0"
+        - ip: "{{ baremetal_network_cidr | nthhost(21) }}"
+          hostnames:
+            - "{{ cluster_name }}-etcd-1"
+        - ip: "{{ baremetal_network_cidr | nthhost(22) }}"
+          hostnames:
+            - "{{ cluster_name }}-etcd-2"
 
 network_isolation: true
 network_isolation_type: 'single-nic-vlans'
