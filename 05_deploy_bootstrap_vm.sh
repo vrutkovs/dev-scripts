@@ -93,7 +93,7 @@ done
 
 
 # Add debug entries
-echo "log-queries=extra" | sudo tee /etc/NetworkManager/dnsmasq.d/openshift.conf
+echo "log-queries" | sudo tee /etc/NetworkManager/dnsmasq.d/openshift.conf
 # NOTE: This is equivalent to the external API DNS record pointing the API to the API VIP
 IP=$(domain_net_ip ${CLUSTER_NAME}-bootstrap baremetal)
 echo "addn-hosts=/etc/hosts.openshift" | sudo tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
