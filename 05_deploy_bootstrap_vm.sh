@@ -93,10 +93,9 @@ done
 
 
 # Add debug entries
-echo "log-queries" | sudo tee /etc/NetworkManager/dnsmasq.d/openshift.conf
 # NOTE: This is equivalent to the external API DNS record pointing the API to the API VIP
 IP=$(domain_net_ip ${CLUSTER_NAME}-bootstrap baremetal)
-echo "addn-hosts=/etc/hosts.openshift" | sudo tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
+echo "addn-hosts=/etc/hosts.openshift" | sudo tee /etc/NetworkManager/dnsmasq.d/openshift.conf
 # Add api alias to bootstrap to host
 echo "${IP} ${CLUSTER_NAME}-bootstrap.${BASE_DOMAIN}" | sudo tee /etc/hosts.openshift
 echo "${IP} api.${CLUSTER_NAME}.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift

@@ -24,7 +24,7 @@ for node in $(jq -r .nodes[].name ${instack}); do
     openstack baremetal node undeploy $node --wait || true
     openstack baremetal node delete $node
   fi
-  MASTER_IP=$(dig +noall +answer "${CLUSTER_NAME}-etcd-${i}.${BASE_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
+  MASTER_IP=$(dig +noall +answer "${CLUSTER_NAME}-master-${i}.${BASE_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
   # Add api alias to masters to host dnsmasq and libvirt's dnsmasq
   echo "${MASTER_IP} api.${CLUSTER_NAME}.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
   # Add entries for etcd discovery
