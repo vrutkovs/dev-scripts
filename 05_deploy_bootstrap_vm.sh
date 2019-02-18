@@ -100,16 +100,6 @@ echo "addn-hosts=/etc/hosts.openshift" | sudo tee -a /etc/NetworkManager/dnsmasq
 # Add api alias to bootstrap to host
 echo "${IP} ${CLUSTER_NAME}-bootstrap.${BASE_DOMAIN}" | sudo tee /etc/hosts.openshift
 echo "${IP} ${CLUSTER_NAME}-api.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
-for i in 0 1 2; do
-  MASTER_IP=$(dig +noall +answer "${CLUSTER_NAME}-etcd-${i}.${BASE_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
-  # Add api alias to masters to host dnsmasq and libvirt's dnsmasq
-  echo "${MASTER_IP} ${CLUSTER_NAME}-api.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
-  # Add entries for etcd discovery
-  echo "${MASTER_IP} ${CLUSTER_NAME}-master-${i}.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
-  echo "srv-host=etcd-server-ssl,${CLUSTER_NAME}-master-${i}.${BASE_DOMAIN},2380" | sudo tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
-done
-# Reload dnsmasq on host
-sudo systemctl reload NetworkManager
 
 # Wait for ssh to start
 while ! ssh -o "StrictHostKeyChecking=no" core@$IP id ; do sleep 5 ; done

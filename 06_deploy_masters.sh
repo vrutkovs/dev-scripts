@@ -17,12 +17,22 @@ wait_for_json ironic \
 
 # Clean previously env
 nodes=$(openstack baremetal node list)
+i=0
 for node in $(jq -r .nodes[].name ${instack}); do
   if [[ $nodes =~ $node ]]; then
     openstack baremetal node undeploy $node --wait || true
     openstack baremetal node delete $node
   fi
+  MASTER_IP=$(dig +noall +answer "${CLUSTER_NAME}-etcd-${i}.${BASE_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
+  # Add api alias to masters to host dnsmasq and libvirt's dnsmasq
+  echo "${MASTER_IP} ${CLUSTER_NAME}-api.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
+  # Add entries for etcd discovery
+  echo "${MASTER_IP} ${CLUSTER_NAME}-master-${i}.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
+  echo "srv-host=etcd-server-ssl,${CLUSTER_NAME}-master-${i}.${BASE_DOMAIN},2380" | sudo tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
+  i=$((i+1))
 done
+# Reload dnsmasq on host
+sudo systemctl reload NetworkManager
 
 openstack baremetal create $instack
 mkdir -p configdrive/openstack/latest
