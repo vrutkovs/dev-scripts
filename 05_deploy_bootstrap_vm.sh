@@ -99,7 +99,7 @@ IP=$(domain_net_ip ${CLUSTER_NAME}-bootstrap baremetal)
 echo "addn-hosts=/etc/hosts.openshift" | sudo tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
 # Add api alias to bootstrap to host
 echo "${IP} ${CLUSTER_NAME}-bootstrap.${BASE_DOMAIN}" | sudo tee /etc/hosts.openshift
-echo "${IP} ${CLUSTER_NAME}-api.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
+echo "${IP} api.${CLUSTER_NAME}.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
 
 # Wait for ssh to start
 while ! ssh -o "StrictHostKeyChecking=no" core@$IP id ; do sleep 5 ; done

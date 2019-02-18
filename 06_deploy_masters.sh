@@ -3,12 +3,13 @@
 set -eux
 source utils.sh
 source common.sh
+source ocp_install_env.sh
 
 # Note This logic will likely run in a container (on the bootstrap VM)
 # for the final solution, but for now we'll prototype the workflow here
 instack="ocp/master_nodes.json"
 export OS_TOKEN=fake-token
-export OS_URL=http://ostest-api.test.metalkube.org:6385/
+export OS_URL=http://api.ostest.test.metalkube.org:6385/
 
 wait_for_json ironic \
     "${OS_URL}/v1/nodes" \
@@ -25,7 +26,7 @@ for node in $(jq -r .nodes[].name ${instack}); do
   fi
   MASTER_IP=$(dig +noall +answer "${CLUSTER_NAME}-etcd-${i}.${BASE_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
   # Add api alias to masters to host dnsmasq and libvirt's dnsmasq
-  echo "${MASTER_IP} ${CLUSTER_NAME}-api.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
+  echo "${MASTER_IP} api.${CLUSTER_NAME}.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
   # Add entries for etcd discovery
   echo "${MASTER_IP} ${CLUSTER_NAME}-master-${i}.${BASE_DOMAIN}" | sudo tee -a /etc/hosts.openshift
   echo "srv-host=etcd-server-ssl,${CLUSTER_NAME}-master-${i}.${BASE_DOMAIN},2380" | sudo tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
