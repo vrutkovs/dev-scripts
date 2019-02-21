@@ -1,0 +1,1 @@
+exec curl -o /dev/null -sIf --cacert /etc/kubernetes/ca.crt "https://0:6443"
