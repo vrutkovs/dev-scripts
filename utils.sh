@@ -147,20 +147,23 @@ function apply_yaml_patches() {
     yq -y '.' < "${wd}/${kind}.json" | sudo tee "$target" | sed -e 's/.*auth.*/***PULL_SECRET***/g'
 }
 
-function create_ignition_configs() {
-    local assets_dir
-
-    assets_dir="$1"
-
-    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create ignition-configs
-}
-
 function create_cluster() {
     local assets_dir
 
     assets_dir="$1"
+    cp ocp/install-config.yaml{,.tmp}
 
-    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create cluster
+    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create ignition-configs
+    cp ocp/master.ign{,.tmp}
+
+    cp ocp/install-config.yaml{.tmp,}
+    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create manifests
+    cp -rf additional_assets/*.yaml ocp/openshift
+
+    cp ocp/install-config.yaml{.tmp,}
+    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" create cluster
+    cp ocp/master.ign{.tmp,}
+
 }
 
 function net_iface_dhcp_ip() {

@@ -1,0 +1,31 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  generation: 1
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 00-master-remove-nic
+spec:
+  config:
+    ignition:
+      version: 2.2.0
+    systemd:
+      units:
+        - contents: |
+            [Unit]
+            Description=Delete provisioning nic from the kernel command line so it can't stall dracut networking
+            [Service]
+            Type=oneshot
+            ExecStart=/usr/local/bin/rm-provision-nic.sh
+            [Install]
+            WantedBy=multi-user.target
+          enabled: true
+          name: rm-provision-nic.service
+    storage:
+      files:
+      - contents:
+          source: data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKClBST1ZERVY9JChpcCByb3V0ZSBnZXQgdG8gMTcyLjIyLjAuMSB8IGF3ayAnL2Rldi97cHJpbnQgJDN9JykKc3VkbyBzZWQgLWkub2xkIC1lICJzLyBpcD0ke1BST1ZERVZ9OmRoY3AvL2ciIC9ib290L2dydWIyL2dydWIuY2ZnCnN5bmMK
+          verification: {}
+        filesystem: root
+        mode: 365
+        path: /usr/local/bin/rm-provision-nic.sh
