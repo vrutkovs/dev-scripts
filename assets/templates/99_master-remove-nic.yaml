@@ -24,7 +24,6 @@ spec:
     storage:
       files:
       - contents:
-          source: data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKClBST1ZERVY9JChpcCByb3V0ZSBnZXQgdG8gMTcyLjIyLjAuMSB8IGF3ayAnL2Rldi97cHJpbnQgJDN9JykKc3VkbyBzZWQgLWkub2xkIC1lICJzLyBpcD0ke1BST1ZERVZ9OmRoY3AvL2ciIC9ib290L2dydWIyL2dydWIuY2ZnCnN5bmMK
           verification: {}
         filesystem: root
         mode: 365

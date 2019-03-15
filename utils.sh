@@ -2,22 +2,36 @@
 
 set -o pipefail
 
+function generate_assets() {
+  rm -rf assets/generated && mkdir assets/generated
+  for file in $(find assets/templates -type f -printf "%P\n"); do
+      echo "Templating ${file} to assets/generated/${file}"
+      cp assets/{templates,generated}/${file}
+
+      for path in $(yq -r '.spec.config.storage.files[].path' assets/templates/${file} | cut -c 2-); do 
+          assets/yaml_patch.py "assets/generated/${file}" "/${path}" "$(cat assets/files/${path} | base64 -w0)"
+      done
+  done
+}
+
 function create_cluster() {
     local assets_dir
 
     assets_dir="$1"
-    cp ocp/install-config.yaml{,.tmp}
+    cp ${assets_dir}/install-config.yaml{,.tmp}
 
     $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create ignition-configs
-    cp ocp/master.ign{,.tmp}
+    cp ${assets_dir}/master.ign{,.tmp}
 
-    cp ocp/install-config.yaml{.tmp,}
+    cp ${assets_dir}/install-config.yaml{.tmp,}
     $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create manifests
-    cp -rf additional_assets/*.yaml ocp/openshift
 
-    cp ocp/install-config.yaml{.tmp,}
+    generate_assets
+    cp -rf assets/generated/*.yaml ${assets_dir}/openshift
+
+    cp ${assets_dir}/install-config.yaml{.tmp,}
     $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" create cluster
-    cp ocp/master.ign{.tmp,}
+    cp ${assets_dir}/master.ign{.tmp,}
 
 }
 

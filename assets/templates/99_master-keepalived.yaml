@@ -1,0 +1,49 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  generation: 1
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 00-master-keepalived
+spec:
+  config:
+    ignition:
+      version: 2.2.0
+    systemd:
+      units:
+        - contents: |
+            [Unit]
+            Description=Manage node VIPs with keepalived
+            Wants=network-online.target
+            After=network-online.target
+            ConditionPathExists=!/etc/keepalived/.keepalived.done
+
+            [Service]
+            WorkingDirectory=/etc/keepalived
+            Environment=API_VIP=192.168.111.5
+            ExecStart=/usr/local/bin/keepalived.sh
+
+            Restart=on-failure
+            RestartSec=5
+
+            [Install]
+            WantedBy=multi-user.target
+          enabled: true
+          name: keepalived.service
+    storage:
+      files:
+      - contents:
+          verification: {}
+        filesystem: root
+        mode: 775
+        path: /etc/keepalived/check_ocp_api.sh
+      - contents:
+          verification: {}
+        filesystem: root
+        mode: 664
+        path: /etc/keepalived/keepalived.conf.template
+      - contents:
+          verification: {}
+        filesystem: root
+        mode: 775
+        path: /usr/local/bin/keepalived.sh
