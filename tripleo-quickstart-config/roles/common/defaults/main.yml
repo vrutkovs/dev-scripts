@@ -148,11 +148,11 @@ networks:
       - "{{ baremetal_network_cidr|nthhost(20) }}"
       - "{{ baremetal_network_cidr|nthhost(60) }}"
     dhcp_hosts:
-      - name: "master-0"
+      - name: "ostest-master-0"
         ip: "{{ baremetal_network_cidr | nthhost(20) }}"
-      - name: "master-1"
+      - name: "ostest-master-1"
         ip: "{{ baremetal_network_cidr | nthhost(21) }}"
-      - name: "master-2"
+      - name: "ostest-master-2"
         ip: "{{ baremetal_network_cidr | nthhost(22) }}"
     nat_port_range:
       - 1024

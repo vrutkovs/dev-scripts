@@ -11,7 +11,8 @@ export EXTERNAL_SUBNET="192.168.111.0/24"
 export SSH_PRIV_KEY="$HOME/.ssh/id_rsa"
 
 # Temporary workaround pending merge of https://github.com/openshift/machine-api-operator/pull/246
-export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="registry.svc.ci.openshift.org/openshift/origin-release:v4.0"
+#export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="registry.svc.ci.openshift.org/openshift/origin-release:v4.0"
+export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="registry.svc.ci.openshift.org/ci-op-bttblh9x/release:latest"
 
 function generate_ocp_install_config() {
     local outdir
