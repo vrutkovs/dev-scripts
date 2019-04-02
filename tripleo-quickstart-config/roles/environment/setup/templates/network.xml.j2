@@ -6,7 +6,7 @@
 {% endif %}
 <network>
   <name>{{ item.name }}</name>
-  <bridge name='{{ item.bridge }}'/>
+  <bridge name='{{ item.bridge }}' delay='{{ item.delay }}'/>
 {% if item.forward_mode is defined %}
   <forward mode='{{ item.forward_mode }}'>
 {% if item.forward_mode == 'nat' %}

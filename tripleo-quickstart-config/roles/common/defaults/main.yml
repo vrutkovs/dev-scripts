@@ -139,8 +139,10 @@ networks:
   - name: provisioning
     bridge: provisioning
     forward_mode: bridge
+    delay: 10
   - name: baremetal
     bridge: baremetal
+    delay: 0
     forward_mode: "{% if manage_baremetal == 'y' %}nat{% else %}bridge{% endif %}"
     address: "{{ baremetal_network_cidr|nthhost(1) }}"
     netmask: "{{ baremetal_network_cidr|ipaddr('netmask') }}"
